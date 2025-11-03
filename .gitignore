@@ -12,7 +12,7 @@ ENV/
 # Backend storage
 backend/storage/
 *.faiss
-*.json
+backend/storage/*.json
 
 # Environment variables
 .env
