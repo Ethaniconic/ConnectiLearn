@@ -2,7 +2,8 @@
  * API service for communicating with the backend
  */
 
-const API_BASE_URL = '/api';
+// Use environment variable for production, fallback to /api for local dev with Vite proxy
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export interface Message {
   role: 'user' | 'assistant';
