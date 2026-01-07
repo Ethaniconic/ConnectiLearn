@@ -43,6 +43,7 @@ router.get('/me', auth, async (req, res) => {
   res.json({ user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role } })
 })
 
+// Admin setup endpoint - use once then remove
 router.post('/setup-admin', async (req, res) => {
   try {
     const { email } = req.body
