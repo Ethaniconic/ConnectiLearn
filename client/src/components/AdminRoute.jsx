@@ -1,15 +1,12 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Loader from './Loader'
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth()
   
   if (loading) {
-    return (
-      <div className="auth-container">
-        <div style={{ textAlign: 'center', color: 'var(--text-light)' }}>Loading...</div>
-      </div>
-    )
+    return <Loader overlay message="Checking admin access..." />
   }
   
   if (!user || user.role !== 'admin') return <Navigate to="/chat" />

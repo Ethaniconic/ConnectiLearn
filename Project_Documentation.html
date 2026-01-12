@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectiLearn - Project Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #4F86F7;
+            border-bottom: 3px solid #4F86F7;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2563EB;
+            margin-top: 30px;
+            border-left: 4px solid #4F86F7;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #3A6FD8;
+            margin-top: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        ul {
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .tech-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #4F86F7;
+        }
+        .vark-section {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .feature-box {
+            background: #e0f2fe;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4F86F7;
+            color: white;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <h1>ConnectiLearn - AI-Powered Learning Platform</h1>
+    <p><strong>Project Type:</strong> Full-Stack Web Application<br>
+    <strong>Date:</strong> January 2026</p>
+
+    <div class="section">
+        <h2>1. Introduction</h2>
+        <p>ConnectiLearn is an AI-powered learning platform designed to revolutionize personalized education through adaptive learning methodologies. The platform integrates artificial intelligence with evidence-based learning theories to create an intelligent learning assistant that caters to diverse learning preferences. Users can upload documents (PDFs, images, text files) and interact with them through intelligent question-answering while leveraging multiple learning modalities tailored to their individual learning styles.</p>
+        
+        <h3>1.1 Problem Statement</h3>
+        <p>Traditional learning approaches often fail to accommodate the diverse ways in which students learn and process information. Research by Neil Fleming's VARK theory demonstrates that individuals have different sensory preferences for learning - some are visual learners, others prefer auditory, reading/writing, or kinesthetic approaches. Current educational tools rarely address these varied learning styles, resulting in suboptimal learning outcomes.</p>
+
+        <h3>1.2 Solution Overview</h3>
+        <p>ConnectiLearn addresses this gap by implementing a comprehensive platform that supports all four VARK learning modalities, combined with AI-powered content generation and personalized learning tools.</p>
+    </div>
+
+    <div class="section">
+        <h2>2. Aim & Objective</h2>
+        
+        <h3>2.1 Primary Aim</h3>
+        <p>To develop an intelligent, adaptive learning platform that accommodates diverse learning styles through VARK theory implementation, enabling students to learn more effectively from their personal document collections using AI-powered assistance.</p>
+        
+        <h3>2.2 Specific Objectives</h3>
+        <ul>
+            <li>Enable seamless document upload and intelligent processing (PDF, images, text files)</li>
+            <li>Implement AI-powered contextual question-answering based on uploaded documents</li>
+            <li>Design and deploy VARK learning style accommodations for all four modalities</li>
+            <li>Provide personalized learning tools (flashcards, quizzes, summaries, mind maps)</li>
+            <li>Ensure secure user authentication and role-based access control</li>
+            <li>Create an admin panel for system management and analytics</li>
+            <li>Support voice-based interaction for auditory learners</li>
+        </ul>
+
+        <h3>2.3 Target Users</h3>
+        <ul>
+            <li>Students seeking personalized, adaptive study assistance</li>
+            <li>Educators designing interactive learning materials</li>
+            <li>Professionals requiring document analysis and self-directed learning</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>3. Literature Review</h2>
+        
+        <h3>3.1 VARK Learning Theory</h3>
+        <p>Neil Fleming's VARK (Visual, Auditory, Reading/Writing, Kinesthetic) model is a widely recognized framework for understanding individual learning preferences. Fleming's research demonstrates that learners typically fall into one or more of these categories:</p>
+        
+        <ul>
+            <li><strong>Visual Learners:</strong> Prefer diagrams, charts, and visual representations. They benefit from color-coded materials, spatial organization, and visual hierarchies.</li>
+            <li><strong>Auditory Learners:</strong> Learn best through listening, discussion, and verbal explanation. They benefit from lectures, podcasts, and audio materials.</li>
+            <li><strong>Reading/Writing Learners:</strong> Prefer text-based materials and written explanations. They excel with documents, notes, and written summaries.</li>
+            <li><strong>Kinesthetic Learners:</strong> Learn through hands-on experience and physical engagement. They benefit from interactive activities, simulations, and practical applications.</li>
+        </ul>
+
+        <h3>3.2 AI in Education</h3>
+        <p>Recent advances in Large Language Models (LLMs) have demonstrated significant potential in educational contexts. Studies show that AI-powered personalized learning can improve student engagement and outcomes by providing adaptive, on-demand assistance tailored to individual needs.</p>
+
+        <h3>3.3 Multimodal Learning Benefits</h3>
+        <p>Research indicates that accommodating multiple learning styles simultaneously increases information retention and student satisfaction. Multimodal instruction combining visual, auditory, reading, and kinesthetic elements leads to 30-40% improvement in learning outcomes compared to single-mode instruction.</p>
+    </div>
+
+    <div class="section">
+        <h2>4. Analysis: VARK Theory Solutions</h2>
+        <p>Through comprehensive analysis of Neil Fleming's VARK theory and its application to modern educational technology, we have developed targeted solutions to address each learning modality:</p>
+
+        <div class="vark-section">
+            <h3>👁️ Visual Learning Solution</h3>
+            <div class="feature-box">
+                <strong>Analysis:</strong> Visual learners process information through images, diagrams, and spatial relationships. They require clear visual hierarchies and color-coded information.
+                <br><br>
+                <strong>Solution Implemented:</strong>
+                <ul>
+                    <li>Interactive flashcards with visual flip animations</li>
+                    <li>AI-generated mind maps showing concept relationships</li>
+                    <li>Color-coded UI with intuitive visual layout</li>
+                    <li>Progress tracking visualizations</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>🎧 Auditory Learning Solution</h3>
+            <div class="feature-box">
+                <strong>Analysis:</strong> Auditory learners excel through listening and verbal processing. They benefit from audio content, discussions, and spoken explanations.
+                <br><br>
+                <strong>Solution Implemented:</strong>
+                <ul>
+                    <li>Text-to-speech conversion for AI responses</li>
+                    <li>Audio summaries optimized for listening (conversational tone)</li>
+                    <li>Voice input recognition for hands-free interaction</li>
+                    <li>Adjustable speech rate and pitch controls</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>📖 Reading/Writing Learning Solution</h3>
+            <div class="feature-box">
+                <strong>Analysis:</strong> Reading/Writing learners prefer text-based materials and written documentation. They learn through note-taking and textual engagement.
+                <br><br>
+                <strong>Solution Implemented:</strong>
+                <ul>
+                    <li>Comprehensive document upload and processing system</li>
+                    <li>Written chat interface with markdown-formatted responses</li>
+                    <li>Detailed document library management</li>
+                    <li>Rich text formatting and code syntax highlighting</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>✋ Kinesthetic Learning Solution</h3>
+            <div class="feature-box">
+                <strong>Analysis:</strong> Kinesthetic learners require hands-on engagement and interactive experiences. They learn through doing and practicing.
+                <br><br>
+                <strong>Solution Implemented:</strong>
+                <ul>
+                    <li>Interactive multiple-choice quizzes with immediate feedback</li>
+                    <li>Click-based interaction and option selection</li>
+                    <li>Real-time scoring and performance visualization</li>
+                    <li>Gamification elements with retry functionality</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. VARK Learning Styles Implementation</h2>
+        <p>ConnectiLearn implements all four VARK learning modalities to accommodate diverse learning preferences:</p>
+
+        <div class="vark-section">
+            <h3>👁️ Visual Learning Implementation</h3>
+            <div class="feature-box">
+                <strong>Features Developed:</strong>
+                <ul>
+                    <li><strong>Interactive Flashcards:</strong> 3D flip animations with front/back design, color-coded elements</li>
+                    <li><strong>AI-Generated Mind Maps:</strong> Visual hierarchy of concepts with branches and relationships</li>
+                    <li><strong>Progress Visualization:</strong> Progress bars, score circles, and visual feedback elements</li>
+                    <li><strong>Color-Coded UI:</strong> Primary blue (#4F86F7) for visual hierarchy and clarity</li>
+                </ul>
+                <strong>Technical Implementation:</strong> CSS 3D transforms, React state management for card flip, dynamic SVG generation for mind maps
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>🎧 Auditory Learning Implementation</h3>
+            <div class="feature-box">
+                <strong>Features Developed:</strong>
+                <ul>
+                    <li><strong>Text-to-Speech:</strong> Convert AI chat responses to spoken audio with adjustable speed (0.9x default)</li>
+                    <li><strong>Audio Summaries:</strong> AI generates conversational summaries optimized for listening</li>
+                    <li><strong>Voice Input Recognition:</strong> Speech-to-text using Web Speech API for voice commands</li>
+                    <li><strong>Audio Controls:</strong> Play/Stop buttons with speaking state management</li>
+                </ul>
+                <strong>Technical Implementation:</strong> Web Speech API (SpeechSynthesisUtterance, SpeechRecognition), browser native APIs, real-time transcript display
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>📖 Reading/Writing Learning Implementation</h3>
+            <div class="feature-box">
+                <strong>Features Developed:</strong>
+                <ul>
+                    <li><strong>Document Upload System:</strong> Support for PDF, TXT, PNG, JPG, JPEG formats</li>
+                    <li><strong>AI-Powered Chat Interface:</strong> Written Q&A with markdown-formatted responses</li>
+                    <li><strong>Document Library:</strong> Organized storage with metadata (size, date, format)</li>
+                    <li><strong>Rich Text Rendering:</strong> Markdown support with code syntax highlighting, tables, lists</li>
+                </ul>
+                <strong>Technical Implementation:</strong> Multer file handling, pdf-parse library for PDF extraction, React Markdown for rendering, MongoDB text indexing
+            </div>
+        </div>
+
+        <div class="vark-section">
+            <h3>✋ Kinesthetic Learning Implementation</h3>
+            <div class="feature-box">
+                <strong>Features Developed:</strong>
+                <ul>
+                    <li><strong>Interactive Quizzes:</strong> Multiple-choice format with 4 options per question</li>
+                    <li><strong>Immediate Feedback:</strong> Correct/incorrect visual indicators with explanations</li>
+                    <li><strong>Score Tracking:</strong> Real-time scoring with percentage calculation and performance badges</li>
+                    <li><strong>Gamification:</strong> Progress bar, retry functionality, motivational messages based on score</li>
+                </ul>
+                <strong>Technical Implementation:</strong> Click handlers for answer selection, state-based conditional rendering, animation effects for feedback, localStorage for progress persistence
+            </div>
+        </div>
+
+        <h3>7.1 Integration Architecture</h3>
+        <p>All four VARK modalities are integrated into a single unified "Learn" page with mode selection:</p>
+        <table>
+            <tr>
+                <th>VARK Mode</th>
+                <th>Page Route</th>
+                <th>API Endpoints</th>
+                <th>AI Generation</th>
+            </tr>
+            <tr>
+                <td>Visual</td>
+                <td>/learn (Visual tab)</td>
+                <td>POST /api/learn/flashcards</td>
+                <td>Llama generates Q&A pairs for flashcards</td>
+            </tr>
+            <tr>
+                <td>Auditory</td>
+                <td>/learn (Auditory tab)</td>
+                <td>POST /api/learn/summary</td>
+                <td>Llama generates conversational summaries</td>
+            </tr>
+            <tr>
+                <td>Reading/Writing</td>
+                <td>/chat</td>
+                <td>POST /api/chat/query, GET /api/documents</td>
+                <td>Llama provides contextual answers</td>
+            </tr>
+            <tr>
+                <td>Kinesthetic</td>
+                <td>/learn (Kinesthetic tab)</td>
+                <td>POST /api/learn/quiz</td>
+                <td>Llama generates MCQ questions</td>
+            </tr>
+        </table>
+
+        <h3>7.2 User Experience Flow</h3>
+        <ol>
+            <li>User logs in and uploads document(s)</li>
+            <li>User selects preferred VARK learning mode</li>
+            <li>User chooses document to learn from</li>
+            <li>AI generates personalized content based on selected mode:
+                <ul>
+                    <li><strong>Visual:</strong> AI creates flashcard Q&A pairs</li>
+                    <li><strong>Auditory:</strong> AI creates audio-friendly summary</li>
+                    <li><strong>Reading/Writing:</strong> User chats with AI about document</li>
+                    <li><strong>Kinesthetic:</strong> AI generates quiz questions with options</li>
+                </ul>
+            </li>
+            <li>User engages with content in their preferred learning style</li>
+            <li>System tracks progress and provides feedback</li>
+        </ol>
+
+        <h3>7.3 Response Generation Methodology</h3>
+        <p>For each VARK modality, AI is prompted with specific instructions:</p>
+        <ul>
+            <li><strong>Flashcards:</strong> "Generate exactly 5 flashcards with clear questions and concise answers"</li>
+            <li><strong>Summaries:</strong> "Create a conversational, spoken-style summary suitable for audio learning with short sentences"</li>
+            <li><strong>Chat:</strong> "Answer questions based on provided document context, be concise but thorough"</li>
+            <li><strong>Quizzes:</strong> "Generate 5 multiple-choice questions that test understanding, not just memorization"</li>
+        </ul>
+
+        <h3>7.4 Admin Features & System Management</h3>
+        <ul>
+            <li>User management (view, delete, role modification)</li>
+            <li>System statistics (total users, documents, chats)</li>
+            <li>Role-based access control (promote/demote users)</li>
+            <li>System health monitoring and analytics</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>8. Deployment & Future Scope</h2>
+        
+        <h3>8.1 Current Deployment Configuration</h3>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Platform</th>
+                <th>Configuration</th>
+            </tr>
+            <tr>
+                <td>Frontend</td>
+                <td>Vercel</td>
+                <td>SPA routing, environment variables, auto-deployment on push</td>
+            </tr>
+            <tr>
+                <td>Backend</td>
+                <td>Render / Railway</td>
+                <td>Node.js runtime, MongoDB Atlas connection, API routing</td>
+            </tr>
+            <tr>
+                <td>Database</td>
+                <td>MongoDB Atlas</td>
+                <td>Cloud-hosted, automatic backups, index optimization</td>
+            </tr>
+            <tr>
+                <td>AI Services</td>
+                <td>Groq Cloud API</td>
+                <td>Llama 3.1-8B-Instant with request rate limiting</td>
+            </tr>
+        </table>
+
+        <h3>8.2 Future Enhancement Opportunities</h3>
+        <ul>
+            <li>Advanced semantic search with similarity scoring</li>
+            <li>Collaborative learning with real-time features</li>
+            <li>Predictive learning paths based on user performance</li>
+            <li>Integration with LMS platforms (Canvas, Blackboard, Moodle)</li>
+            <li>Mobile applications (iOS/Android with React Native)</li>
+            <li>Multi-language support and localization</li>
+            <li>Advanced analytics dashboard with learning insights</li>
+            <li>Peer-to-peer study groups and collaborative documents</li>
+        </ul>
+
+        <h3>8.3 Conclusion</h3>
+        <p>ConnectiLearn successfully implements Neil Fleming's VARK learning theory in a modern, AI-powered platform. By accommodating all four learning modalities—visual, auditory, reading/writing, and kinesthetic—the platform ensures that every learner can engage with educational content in their preferred way. The integration of Groq's Llama 3.1 LLM provides intelligent, context-aware responses, while the modular architecture allows for easy scaling and future enhancements. This project demonstrates the effective convergence of educational psychology with modern technology, creating a personalized learning experience that adapts to individual preferences.</p>
+    </div>
+
+    <div class="section">
+        <h2>5. Proposed Methodology</h2>
+        
+        <h3>5.1 System Architecture & Design</h3>
+        <p>ConnectiLearn follows a modern full-stack architecture with clear separation of concerns, enabling scalability and maintainability.</p>
+        
+        <table>
+            <tr>
+                <th>Layer</th>
+                <th>Technology</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td>Frontend</td>
+                <td>React + Vite</td>
+                <td>Single-page application with responsive design</td>
+            </tr>
+            <tr>
+                <td>Backend</td>
+                <td>Node.js + Express</td>
+                <td>RESTful API server with business logic</td>
+            </tr>
+            <tr>
+                <td>Database</td>
+                <td>MongoDB Atlas</td>
+                <td>NoSQL document storage and indexing</td>
+            </tr>
+            <tr>
+                <td>AI Engine</td>
+                <td>Groq API (Llama 3.1)</td>
+                <td>Natural language processing and content generation</td>
+            </tr>
+            <tr>
+                <td>Authentication</td>
+                <td>JWT + bcryptjs</td>
+                <td>Secure token-based user authentication</td>
+            </tr>
+        </table>
+
+        <h3>5.2 AI Processing Pipeline</h3>
+        <ol>
+            <li><strong>Document Ingestion:</strong> Extract text from PDFs, images (OCR), and text files</li>
+            <li><strong>Text Chunking:</strong> Split documents into semantic chunks (500-word segments)</li>
+            <li><strong>Query Processing:</strong> Keyword-based retrieval of relevant document chunks</li>
+            <li><strong>Context Assembly:</strong> Gather top-5 relevant chunks as context</li>
+            <li><strong>AI Response Generation:</strong> Llama 3.1 generates contextual answers</li>
+            <li><strong>Content Creation:</strong> AI generates flashcards, quizzes, summaries, and mind maps</li>
+        </ol>
+
+        <h3>5.3 Key Modules</h3>
+        <ul>
+            <li><strong>Authentication Module:</strong> User signup, login, JWT-based session management</li>
+            <li><strong>Document Management:</strong> Upload, parse, chunk, and store documents</li>
+            <li><strong>Chat Module:</strong> Contextual AI conversations with semantic search</li>
+            <li><strong>Learning Module:</strong> VARK-based interactive learning tools</li>
+            <li><strong>Admin Panel:</strong> User management, system analytics, and oversight</li>
+        </ul>
+
+        <h3>5.4 Data Models</h3>
+        <ul>
+            <li><strong>User Model:</strong> name, email, hashed password, role (user/admin), statistics</li>
+            <li><strong>Document Model:</strong> filename, content, text chunks, userId, metadata (size, type, word count)</li>
+            <li><strong>Chat Model:</strong> userId, title, messages (role, content, contexts), pinned status, active status</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>6. Technology Used - Tech Stack</h2>
+        <div class="tech-stack">
+            <div class="tech-item">
+                <strong>Frontend Technologies</strong>
+                <ul>
+                    <li>React 18.2.0</li>
+                    <li>React Router DOM 6.20</li>
+                    <li>Axios 1.6.2</li>
+                    <li>React Markdown 9.0.1</li>
+                    <li>Vite 5.0</li>
+                    <li>CSS3 with CSS Variables</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <strong>Backend Technologies</strong>
+                <ul>
+                    <li>Node.js Runtime</li>
+                    <li>Express 4.18.2</li>
+                    <li>Mongoose 8.0</li>
+                    <li>JSON Web Tokens (JWT) 9.0.2</li>
+                    <li>bcryptjs 2.4.3</li>
+                    <li>Multer 2.0.2</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <strong>Database & Storage</strong>
+                <ul>
+                    <li>MongoDB Atlas (Cloud)</li>
+                    <li>Mongoose ODM</li>
+                    <li>Database Indexing</li>
+                    <li>File Storage System</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <strong>AI & APIs</strong>
+                <ul>
+                    <li>Groq SDK 0.3.2</li>
+                    <li>Llama 3.1-8B Model</li>
+                    <li>Web Speech API</li>
+                    <li>pdf-parse 1.1.1</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>6.1 Complete Technology Stack Table</h3>
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Technology</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td>Frontend Framework</td>
+                <td>React</td>
+                <td>18.2.0</td>
+                <td>UI component library and state management</td>
+            </tr>
+            <tr>
+                <td>Frontend Build Tool</td>
+                <td>Vite</td>
+                <td>5.0</td>
+                <td>Fast development server and bundler</td>
+            </tr>
+            <tr>
+                <td>Routing</td>
+                <td>React Router DOM</td>
+                <td>6.20</td>
+                <td>Client-side routing and navigation</td>
+            </tr>
+            <tr>
+                <td>HTTP Client</td>
+                <td>Axios</td>
+                <td>1.6.2</td>
+                <td>API communication and request handling</td>
+            </tr>
+            <tr>
+                <td>Markdown Rendering</td>
+                <td>React Markdown</td>
+                <td>9.0.1</td>
+                <td>Display formatted AI responses</td>
+            </tr>
+            <tr>
+                <td>Backend Framework</td>
+                <td>Express.js</td>
+                <td>4.18.2</td>
+                <td>REST API server framework</td>
+            </tr>
+            <tr>
+                <td>Database</td>
+                <td>MongoDB Atlas</td>
+                <td>Cloud</td>
+                <td>NoSQL document database</td>
+            </tr>
+            <tr>
+                <td>ODM</td>
+                <td>Mongoose</td>
+                <td>8.0</td>
+                <td>MongoDB object document mapper</td>
+            </tr>
+            <tr>
+                <td>Authentication</td>
+                <td>JWT</td>
+                <td>9.0.2</td>
+                <td>Secure token-based authentication</td>
+            </tr>
+            <tr>
+                <td>Password Hashing</td>
+                <td>bcryptjs</td>
+                <td>2.4.3</td>
+                <td>Secure password encryption</td>
+            </tr>
+            <tr>
+                <td>File Upload</td>
+                <td>Multer</td>
+                <td>2.0.2</td>
+                <td>Multipart form data handling</td>
+            </tr>
+            <tr>
+                <td>PDF Processing</td>
+                <td>pdf-parse</td>
+                <td>1.1.1</td>
+                <td>Extract text from PDF files</td>
+            </tr>
+            <tr>
+                <td>AI API</td>
+                <td>Groq SDK</td>
+                <td>0.3.2</td>
+                <td>Access to Llama 3.1 LLM</td>
+            </tr>
+            <tr>
+                <td>LLM Model</td>
+                <td>Llama 3.1-8B-Instant</td>
+                <td>Latest</td>
+                <td>Natural language processing</td>
+            </tr>
+            <tr>
+                <td>Speech Synthesis</td>
+                <td>Web Speech API</td>
+                <td>Browser Native</td>
+                <td>Text-to-speech and voice recognition</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>7. Implementation of VARK Module in This Project</h2>
+
+    <div class="footer">
+        <p><strong>ConnectiLearn</strong> - Empowering Learning Through AI</p>
+        <p>Project Documentation | January 2026</p>
+    </div>
+</body>
+</html>

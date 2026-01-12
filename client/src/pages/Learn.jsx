@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../utils/api'
+import Loader from '../components/Loader'
+import { Eye, Headphones, Hand, Play, StopCircle, Mic, MicOff } from 'lucide-react'
 
 function Learn() {
   const [mode, setMode] = useState('visual')
@@ -164,19 +166,19 @@ function Learn() {
           className={`learn-mode-btn ${mode === 'visual' ? 'active' : ''}`}
           onClick={() => setMode('visual')}
         >
-          👁️ Visual
+          <Eye size={18} /> Visual
         </button>
         <button 
           className={`learn-mode-btn ${mode === 'auditory' ? 'active' : ''}`}
           onClick={() => setMode('auditory')}
         >
-          🎧 Auditory
+          <Headphones size={18} /> Auditory
         </button>
         <button 
           className={`learn-mode-btn ${mode === 'kinesthetic' ? 'active' : ''}`}
           onClick={() => setMode('kinesthetic')}
         >
-          ✋ Kinesthetic
+          <Hand size={18} /> Kinesthetic
         </button>
       </div>
 
@@ -195,6 +197,8 @@ function Learn() {
           </select>
         </div>
 
+        {loading && <Loader overlay message="Generating content..." />}
+
         {mode === 'visual' && (
           <div className="visual-mode">
             <div className="mode-actions">
@@ -203,7 +207,7 @@ function Learn() {
                 onClick={generateFlashcards}
                 disabled={!selectedDoc || loading}
               >
-                {loading ? 'Generating...' : '🎴 Generate Flashcards'}
+                {loading ? 'Generating...' : 'Generate Flashcards'}
               </button>
             </div>
 
@@ -246,7 +250,7 @@ function Learn() {
                 onClick={generateSummary}
                 disabled={!selectedDoc || loading}
               >
-                {loading ? 'Generating...' : '📝 Generate Audio Summary'}
+                {loading ? 'Generating...' : 'Generate Audio Summary'}
               </button>
             </div>
 
@@ -255,11 +259,11 @@ function Learn() {
                 <div className="audio-controls">
                   {!speaking ? (
                     <button className="btn" onClick={() => speakText(summary)}>
-                      🔊 Play Summary
+                      <Play size={18} /> Play Summary
                     </button>
                   ) : (
                     <button className="btn btn-secondary" onClick={stopSpeaking}>
-                      ⏹️ Stop
+                      <StopCircle size={18} /> Stop
                     </button>
                   )}
                 </div>
@@ -276,11 +280,11 @@ function Learn() {
               <div className="voice-controls">
                 {!listening ? (
                   <button className="btn" onClick={startListening}>
-                    🎤 Start Recording
+                    <Mic size={18} /> Start Recording
                   </button>
                 ) : (
                   <button className="btn btn-secondary recording" onClick={stopListening}>
-                    ⏹️ Stop Recording
+                    <MicOff size={18} /> Stop Recording
                   </button>
                 )}
               </div>
@@ -301,7 +305,7 @@ function Learn() {
                 onClick={generateQuiz}
                 disabled={!selectedDoc || loading}
               >
-                {loading ? 'Generating...' : '📝 Generate Quiz'}
+                {loading ? 'Generating...' : 'Generate Quiz'}
               </button>
             </div>
 

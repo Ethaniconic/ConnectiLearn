@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import api from '../utils/api'
+import Loader from '../components/Loader'
+import { Volume2, Square } from 'lucide-react'
 
 function Chat() {
   const [messages, setMessages] = useState([])
@@ -95,7 +97,7 @@ function Chat() {
                     onClick={() => speakMessage(msg.content, i)}
                     title={speakingId === i ? 'Stop' : 'Listen'}
                   >
-                    {speakingId === i ? '⏹️' : '🔊'}
+                    {speakingId === i ? <Square size={16} /> : <Volume2 size={16} />}
                   </button>
                 </>
               ) : (
@@ -103,7 +105,11 @@ function Chat() {
               )}
             </div>
           ))}
-          {loading && <div className="message thinking">Thinking...</div>}
+          {loading && (
+            <div className="message thinking">
+              <Loader message="Thinking..." size={80} />
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
         <form className="chat-input-container" onSubmit={handleSubmit}>

@@ -268,6 +268,76 @@ body {
   border-radius: 8px;
 }
 
+/* Loader Styles */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loader {
+  position: relative;
+  display: inline-block;
+}
+
+.loader-core {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 25px rgba(79, 134, 247, 0.35);
+}
+
+.loader-orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: orbit 2.8s linear infinite;
+}
+
+.loader-orbit-1 { transform: scale(1); }
+.loader-orbit-2 { transform: scale(0.78); animation-duration: 2.2s; }
+.loader-orbit-3 { transform: scale(0.56); animation-duration: 1.6s; }
+
+.orbit-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-primary);
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  transform: translate(-50%, -140%);
+  box-shadow: 0 6px 16px rgba(79, 134, 247, 0.45);
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-message {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -562,6 +632,11 @@ body {
   color: var(--text-dark);
   border-bottom-left-radius: 6px;
   position: relative;
+}
+
+.message.assistant .speak-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .speak-btn {

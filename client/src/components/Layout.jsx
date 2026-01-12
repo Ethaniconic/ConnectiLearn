@@ -3,12 +3,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
 import api from '../utils/api'
+import { MessageSquare, GraduationCap, UploadCloud, Info, Settings, Pin, PinOff, Trash2 } from 'lucide-react'
+import Loader from './Loader'
 
 function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [chats, setChats] = useState([])
+  const [routeLoading, setRouteLoading] = useState(false)
   const [activeChat, setActiveChat] = useState(null)
 
   const fetchChats = useCallback(async () => {
@@ -44,6 +47,13 @@ function Layout() {
     window.addEventListener('chatCreated', handleChatCreated)
     return () => window.removeEventListener('chatCreated', handleChatCreated)
   }, [fetchChats, fetchActiveChat])
+
+  // Lightweight route transition loader for polish
+  useEffect(() => {
+    setRouteLoading(true)
+    const t = setTimeout(() => setRouteLoading(false), 350)
+    return () => clearTimeout(t)
+  }, [location.pathname])
 
   const newChat = async () => {
     try {
@@ -112,6 +122,7 @@ function Layout() {
 
   return (
     <div className="layout">
+      {routeLoading && <Loader overlay message="Loading view..." />}
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="sidebar-logo">ConnectiLearn</div>
@@ -119,20 +130,20 @@ function Layout() {
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/chat" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            💬 Chat
+            <MessageSquare size={18} /> Chat
           </NavLink>
           <NavLink to="/learn" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            🎓 Learn
+            <GraduationCap size={18} /> Learn
           </NavLink>
           <NavLink to="/uploads" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            📁 Uploads
+            <UploadCloud size={18} /> Uploads
           </NavLink>
           <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            ℹ️ About
+            <Info size={18} /> About
           </NavLink>
           {user?.role === 'admin' && (
             <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              ⚙️ Admin
+              <Settings size={18} /> Admin
             </NavLink>
           )}
         </nav>
@@ -157,8 +168,12 @@ function Layout() {
                       <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
                     </div>
                     <div className="chat-history-item-actions">
-                      <button onClick={(e) => pinChat(e, chat._id)}>📌</button>
-                      <button onClick={(e) => deleteChat(e, chat._id)}>🗑️</button>
+                      <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
+                        <Pin size={16} />
+                      </button>
+                      <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -178,8 +193,12 @@ function Layout() {
                       <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
                     </div>
                     <div className="chat-history-item-actions">
-                      <button onClick={(e) => pinChat(e, chat._id)}>📍</button>
-                      <button onClick={(e) => deleteChat(e, chat._id)}>🗑️</button>
+                      <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
+                        <PinOff size={16} />
+                      </button>
+                      <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
