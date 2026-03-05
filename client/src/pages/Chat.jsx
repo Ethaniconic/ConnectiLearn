@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import api from '../utils/api'
 import Loader from '../components/Loader'
-import { Volume2, Square } from 'lucide-react'
+import { Volume2, Square, SendHorizonal } from 'lucide-react'
 
 function Chat() {
   const [messages, setMessages] = useState([])
@@ -92,7 +92,7 @@ function Chat() {
               {msg.role === 'assistant' ? (
                 <>
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  <button 
+                  <button
                     className="speak-btn"
                     onClick={() => speakMessage(msg.content, i)}
                     title={speakingId === i ? 'Stop' : 'Listen'}
@@ -120,7 +120,7 @@ function Chat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <button type="submit" className="btn" disabled={loading}>Send</button>
+          <button type="submit" className="btn" disabled={loading}><SendHorizonal size={18} /></button>
         </form>
       </div>
     </div>
