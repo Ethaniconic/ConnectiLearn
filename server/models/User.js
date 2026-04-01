@@ -43,6 +43,20 @@ const userSchema = new mongoose.Schema({
   totalQueries: {
     type: Number,
     default: 0
+  },
+  questionnaireCompleted: {
+    type: Boolean,
+    default: false
+  },
+  learningStyle: {
+    type: String,
+    enum: ['Visual', 'Auditory', 'Kinesthetic', 'ReadWrite'],
+    default: null
+  },
+  questionnaire: {
+    type: [Number],
+    default: [],
+    validate: [v => v.length === 0 || v.length === 20, 'Questionnaire must have exactly 20 answers']
   }
 }, { 
   timestamps: true 

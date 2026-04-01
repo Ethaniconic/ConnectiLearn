@@ -49,6 +49,10 @@ const documentSchema = new mongoose.Schema({
   },
   errorMessage: {
     type: String
+  },
+  isCompleted: {
+    type: Boolean,
+    default: false
   }
 }, { 
   timestamps: true 

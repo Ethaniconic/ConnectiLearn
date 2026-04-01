@@ -108,4 +108,18 @@ router.delete('/:id', auth, async (req, res) => {
   }
 })
 
+router.put('/:id/complete', auth, async (req, res) => {
+  try {
+    const doc = await Document.findOne({ _id: req.params.id, userId: req.user._id })
+    if (!doc) return res.status(404).json({ message: 'Document not found' })
+    
+    doc.isCompleted = !doc.isCompleted
+    await doc.save()
+    
+    res.json({ message: `Document marked as ${doc.isCompleted ? 'completed' : 'incomplete'}`, document: doc })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
 export default router

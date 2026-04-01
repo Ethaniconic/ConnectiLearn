@@ -17,7 +17,18 @@ router.post('/signup', async (req, res) => {
     await user.save()
     
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } })
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        questionnaireCompleted: user.questionnaireCompleted,
+        learningStyle: user.learningStyle,
+        questionnaire: user.questionnaire
+      }
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
@@ -33,14 +44,35 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' })
     
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } })
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        questionnaireCompleted: user.questionnaireCompleted,
+        learningStyle: user.learningStyle,
+        questionnaire: user.questionnaire
+      }
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
 })
 
 router.get('/me', auth, async (req, res) => {
-  res.json({ user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role } })
+  res.json({
+    user: {
+      id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      questionnaireCompleted: req.user.questionnaireCompleted,
+      learningStyle: req.user.learningStyle,
+      questionnaire: req.user.questionnaire
+    }
+  })
 })
 
 router.post('/setup-admin', async (req, res) => {

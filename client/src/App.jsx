@@ -10,6 +10,8 @@ import Uploads from './pages/Uploads'
 import About from './pages/About'
 import Admin from './pages/Admin'
 import Learn from './pages/Learn'
+import Questionnaire from './pages/Questionnaire'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
@@ -22,8 +24,10 @@ function App() {
             <Route path="/signup" element={<Navigate to="/auth" replace />} />
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
               <Route index element={<Navigate to="/chat" replace />} />
+                <Route path="questionnaire" element={<Questionnaire />} />
               <Route path="chat" element={<Chat />} />
               <Route path="learn" element={<Learn />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="uploads" element={<Uploads />} />
               <Route path="about" element={<About />} />
               <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />

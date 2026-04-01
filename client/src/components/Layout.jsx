@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
 import api from '../utils/api'
-import { MessageSquare, GraduationCap, UploadCloud, Info, Settings, Pin, PinOff, Trash2 } from 'lucide-react'
+import { MessageSquare, GraduationCap, UploadCloud, Info, Settings, Pin, PinOff, Trash2, ClipboardList, Menu, LogOut, LayoutDashboard, Eye, Headphones, Hand, BookOpenText } from 'lucide-react'
 import Loader from './Loader'
 
 function Layout() {
@@ -13,6 +13,7 @@ function Layout() {
   const [chats, setChats] = useState([])
   const [routeLoading, setRouteLoading] = useState(false)
   const [activeChat, setActiveChat] = useState(null)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const fetchChats = useCallback(async () => {
     if (!user) return
@@ -123,99 +124,152 @@ function Layout() {
   return (
     <div className="layout">
       {routeLoading && <Loader overlay message="Loading view..." />}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-logo">ConnectiLearn</div>
-          <ThemeToggle />
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start', gap: '10px' }}>
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)} 
+            className="hamburger-btn"
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: 'var(--text-muted)', 
+              cursor: 'pointer',
+              display: 'flex',
+              padding: '8px',
+              borderRadius: '6px'
+            }}
+          >
+            <Menu size={20} />
+          </button>
+          {!isCollapsed && <div className="sidebar-logo" style={{ flex: 1 }}>ConnectiLearn</div>}
+          {!isCollapsed && <ThemeToggle />}
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/chat" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <MessageSquare size={18} /> Chat
+            <MessageSquare size={18} /> {!isCollapsed && <span>Chat</span>}
+          </NavLink>
+          <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <LayoutDashboard size={18} /> {!isCollapsed && <span>Dashboard</span>}
           </NavLink>
           <NavLink to="/learn" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <GraduationCap size={18} /> Learn
+            <GraduationCap size={18} /> {!isCollapsed && <span>Learn Hub</span>}
+          </NavLink>
+          <NavLink to="/questionnaire" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <ClipboardList size={18} /> {!isCollapsed && <span>Questionnaire</span>}
           </NavLink>
           <NavLink to="/uploads" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <UploadCloud size={18} /> Uploads
+            <UploadCloud size={18} /> {!isCollapsed && <span>Uploads</span>}
           </NavLink>
           <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <Info size={18} /> About
+            <Info size={18} /> {!isCollapsed && <span>About</span>}
           </NavLink>
           {user?.role === 'admin' && (
             <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              <Settings size={18} /> Admin
+              <Settings size={18} /> {!isCollapsed && <span>Admin</span>}
             </NavLink>
           )}
         </nav>
-        
-        <div className="chat-history-section">
-          <div className="chat-history-header">
-            <span>Chat History</span>
-            <button className="new-chat-btn" onClick={newChat}>+</button>
-          </div>
-          <div className="chat-history-list">
-            {pinnedChats.length > 0 && (
-              <div className="chat-group">
-                <div className="chat-group-title">📌 Pinned</div>
-                {pinnedChats.map(chat => (
-                  <div 
-                    key={chat._id} 
-                    className={`chat-history-item ${chat._id === activeChat && isOnChat ? 'active' : ''}`}
-                    onClick={() => switchChat(chat._id)}
-                  >
-                    <div className="chat-history-item-content">
-                      <span className="chat-history-item-title">{chat.title}</span>
-                      <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
-                    </div>
-                    <div className="chat-history-item-actions">
-                      <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
-                        <Pin size={16} />
-                      </button>
-                      <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {recentChats.length > 0 && (
-              <div className="chat-group">
-                <div className="chat-group-title">💬 Recent</div>
-                {recentChats.map(chat => (
-                  <div 
-                    key={chat._id} 
-                    className={`chat-history-item ${chat._id === activeChat && isOnChat ? 'active' : ''}`}
-                    onClick={() => switchChat(chat._id)}
-                  >
-                    <div className="chat-history-item-content">
-                      <span className="chat-history-item-title">{chat.title}</span>
-                      <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
-                    </div>
-                    <div className="chat-history-item-actions">
-                      <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
-                        <PinOff size={16} />
-                      </button>
-                      <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {chats.length === 0 && (
-              <div className="chat-history-empty">No chats yet</div>
-            )}
+
+        {/* One-Click Modes Menu */}
+        <div className="sidebar-modes-menu" style={{ 
+          padding: isCollapsed ? '10px 5px' : '20px 14px', 
+          borderTop: '1px solid var(--sidebar-border)',
+          marginTop: '10px'
+        }}>
+          {!isCollapsed && <div style={{ fontSize: '0.7em', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Quick Modes</div>}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isCollapsed ? '1fr' : 'repeat(4, 1fr)', 
+            gap: isCollapsed ? '12px' : '8px' 
+          }}>
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'visual' } })} className="mode-dot visual" title="Visual Mode">
+              <Eye size={isCollapsed ? 20 : 16} />
+            </button>
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'auditory' } })} className="mode-dot auditory" title="Auditory Mode">
+              <Headphones size={isCollapsed ? 20 : 16} />
+            </button>
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'readwrite' } })} className="mode-dot readwrite" title="Read/Write Mode">
+              <BookOpenText size={isCollapsed ? 20 : 16} />
+            </button>
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'kinesthetic' } })} className="mode-dot kinesthetic" title="Kinesthetic Mode">
+              <Hand size={isCollapsed ? 20 : 16} />
+            </button>
           </div>
         </div>
+        
+        {!isCollapsed && (
+          <div className="chat-history-section">
+            <div className="chat-history-header">
+              <span>Chat History</span>
+              <button className="new-chat-btn" onClick={newChat}>+</button>
+            </div>
+            <div className="chat-history-list">
+              {pinnedChats.length > 0 && (
+                <div className="chat-group">
+                  <div className="chat-group-title">📌 Pinned</div>
+                  {pinnedChats.map(chat => (
+                    <div 
+                      key={chat._id} 
+                      className={`chat-history-item ${chat._id === activeChat && isOnChat ? 'active' : ''}`}
+                      onClick={() => switchChat(chat._id)}
+                    >
+                      <div className="chat-history-item-content">
+                        <span className="chat-history-item-title">{chat.title}</span>
+                        <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
+                      </div>
+                      <div className="chat-history-item-actions">
+                        <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
+                          <Pin size={16} />
+                        </button>
+                        <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {recentChats.length > 0 && (
+                <div className="chat-group">
+                  <div className="chat-group-title">💬 Recent</div>
+                  {recentChats.map(chat => (
+                    <div 
+                      key={chat._id} 
+                      className={`chat-history-item ${chat._id === activeChat && isOnChat ? 'active' : ''}`}
+                      onClick={() => switchChat(chat._id)}
+                    >
+                      <div className="chat-history-item-content">
+                        <span className="chat-history-item-title">{chat.title}</span>
+                        <span className="chat-history-item-date">{formatDate(chat.updatedAt)}</span>
+                      </div>
+                      <div className="chat-history-item-actions">
+                        <button onClick={(e) => pinChat(e, chat._id)} title="Pin">
+                          <PinOff size={16} />
+                        </button>
+                        <button onClick={(e) => deleteChat(e, chat._id)} title="Delete">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {chats.length === 0 && (
+                <div className="chat-history-empty">No chats yet</div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            {user?.name} ({user?.role})
-          </div>
-          <button className="btn btn-secondary btn-full" onClick={handleLogout}>
-            Logout
+          {!isCollapsed ? (
+            <div className="user-info">
+              {user?.name} ({user?.role})
+            </div>
+          ) : null}
+          <button className="btn btn-secondary btn-full" onClick={handleLogout} style={isCollapsed ? { padding: '10px', display: 'flex', justifyContent: 'center' } : { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <LogOut size={isCollapsed ? 20 : 18} />
+            {!isCollapsed && <span>Logout</span>}
           </button>
         </div>
       </aside>
