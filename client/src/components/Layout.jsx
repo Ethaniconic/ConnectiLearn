@@ -128,16 +128,8 @@ function Layout() {
         <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start', gap: '10px' }}>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)} 
-            className="hamburger-btn"
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              color: 'var(--text-muted)', 
-              cursor: 'pointer',
-              display: 'flex',
-              padding: '8px',
-              borderRadius: '6px'
-            }}
+            className={`hamburger-btn ${isCollapsed ? 'is-active' : ''}`}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Menu size={20} />
           </button>
