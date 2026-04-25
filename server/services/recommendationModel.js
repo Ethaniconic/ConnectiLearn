@@ -15,7 +15,7 @@ const CONTENT_LIBRARY = [
     format: 'Infographic + mind map',
     action: 'Start with the chapter concept map, then annotate links between ideas.',
     targetMode: 'visual',
-    actionType: 'flashcards'
+    actionType: 'mindmap'
   },
   {
     id: 'visual-2',

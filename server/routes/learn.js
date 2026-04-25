@@ -11,6 +11,92 @@ dotenv.config()
 const router = express.Router()
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
+/**
+ * Robustly parses JSON from LLM responses, handling markdown blocks, 
+ * trailing commas, and unescaped newlines.
+ */
+const safeParseJSON = (str) => {
+  try {
+    // 1. Strip Markdown code blocks (e.g. ```json ... ```)
+    const jsonBlock = str.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+    let cleanStr = jsonBlock ? jsonBlock[1] : str
+    
+    // 2. Find the first [ or { and the last ] or }
+    const startIdx = cleanStr.indexOf('[') !== -1 ? cleanStr.indexOf('[') : cleanStr.indexOf('{')
+    const endIdx = cleanStr.lastIndexOf(']') !== -1 ? cleanStr.lastIndexOf(']') : cleanStr.lastIndexOf('}')
+    
+    if (startIdx === -1 || endIdx === -1) throw new Error("No JSON markers found")
+    cleanStr = cleanStr.slice(startIdx, endIdx + 1)
+    
+    // 3. Remove trailing commas in objects/arrays (very common LLM mistake)
+    cleanStr = cleanStr.replace(/,\s*([\]}])/g, '$1')
+    
+    return JSON.parse(cleanStr)
+  } catch (error) {
+    console.error("Manual Parse Failed:", error.message)
+    // One last ditch: search for an array pattern specifically if it's flashcards/quiz
+    return null 
+  }
+}
+
+/**
+ * Cleans content of characters that often break JSON formatting in LLM responses.
+ */
+const sanitizeContent = (text) => {
+  return text
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // remove control chars
+    .replace(/\\/g, '\\\\')                      // escape backslashes
+    .replace(/"/g, '\"')                         // escape quotes
+    .slice(0, 5000)
+}
+
+const isGroqInvalidKeyError = (error) => {
+  const normalizedMessage = (error?.message || '').toLowerCase()
+  const normalizedCode = (error?.code || error?.error?.code || '').toLowerCase()
+  const normalizedType = (error?.type || error?.error?.type || '').toLowerCase()
+  const statusCode = error?.status || error?.response?.status
+
+  return (
+    statusCode === 401 ||
+    normalizedCode === 'invalid_api_key' ||
+    normalizedType === 'invalid_request_error' ||
+    normalizedMessage.includes('invalid api key')
+  )
+}
+
+const buildPodcastFallbackSummary = (rawText) => {
+  if (!rawText || typeof rawText !== 'string') {
+    return 'This topic has been loaded, but we could not generate an AI summary at the moment. Please try again in a few minutes.'
+  }
+
+  const normalizedText = rawText
+    .replace(/\s+/g, ' ')
+    .replace(/\uFFFD/g, ' ')
+    .trim()
+
+  const sentences = normalizedText
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 40)
+
+  if (sentences.length === 0) {
+    const shortText = normalizedText.slice(0, 1200)
+    return `Here is a quick learning brief from your document. ${shortText}`
+  }
+
+  const selected = sentences.slice(0, 10)
+  const chunks = []
+  for (let i = 0; i < selected.length; i += 3) {
+    chunks.push(selected.slice(i, i + 3).join(' '))
+  }
+
+  return [
+    'This is your podcast-style study recap from the selected document.',
+    ...chunks.slice(0, 4),
+    'End of recap. You can replay this and then move to quiz mode to test retention.'
+  ].join('\n\n')
+}
+
 router.get('/hype', auth, async (req, res) => {
   try {
     const style = req.user.learningStyle
@@ -22,7 +108,7 @@ router.get('/hype', auth, async (req, res) => {
     const pointsText = `Visual: ${board.visualPoints}, Auditory: ${board.auditoryPoints}, ReadWrite: ${board.readwritePoints}, Kinesthetic: ${board.kinestheticPoints}`
 
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -55,13 +141,13 @@ router.post('/flashcards', auth, async (req, res) => {
     const document = await Document.findOne({ _id: documentId, userId: req.user._id })
     if (!document) return res.status(404).json({ message: 'Document not found' })
 
-    const content = document.chunks.map(c => c.text).join('\n').slice(0, 5000)
+    const content = sanitizeContent(document.chunks.map(c => c.text).join('\n'))
     if (!content || content.trim().length < 50) {
-      return res.status(400).json({ message: 'Document content is too short to generate meaningful flashcards. Please upload a more detailed file.' })
+      return res.status(400).json({ message: 'Document content is too short to generate meaningful flashcards.' })
     }
     
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -79,21 +165,12 @@ router.post('/flashcards', auth, async (req, res) => {
       max_tokens: 2000
     })
 
-    let flashcards = []
     const responseText = completion.choices[0].message.content
-    try {
-      // Find index of first [ and last ]
-      const start = responseText.indexOf('[')
-      const end = responseText.lastIndexOf(']')
-      if (start !== -1 && end !== -1) {
-        const jsonStr = responseText.substring(start, end + 1)
-        flashcards = JSON.parse(jsonStr)
-      } else {
-        throw new Error("Missing array markers")
-      }
-    } catch (e) {
+    const flashcards = safeParseJSON(responseText)
+
+    if (!flashcards) {
       console.error('Flashcard Parsing Error:', responseText)
-      return res.status(500).json({ message: 'AI model produced malformed JSON. Please refresh and try again.' })
+      return res.status(500).json({ message: 'AI model failed with the current document formatting. Please try a different section or a simpler file.' })
     }
 
     res.json({ flashcards })
@@ -114,13 +191,13 @@ router.post('/quiz', auth, async (req, res) => {
     const document = await Document.findOne({ _id: documentId, userId: req.user._id })
     if (!document) return res.status(404).json({ message: 'Document not found' })
 
-    const content = document.chunks.map(c => c.text).join('\n').slice(0, 5000)
+    const content = sanitizeContent(document.chunks.map(c => c.text).join('\n'))
     if (!content || content.trim().length < 50) {
       return res.status(400).json({ message: 'Document content is too short for a quiz.' })
     }
     
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -137,20 +214,12 @@ router.post('/quiz', auth, async (req, res) => {
       max_tokens: 2000
     })
 
-    let questions = []
     const responseText = completion.choices[0].message.content
-    try {
-      const start = responseText.indexOf('[')
-      const end = responseText.lastIndexOf(']')
-      if (start !== -1 && end !== -1) {
-        const jsonStr = responseText.substring(start, end + 1)
-        questions = JSON.parse(jsonStr)
-      } else {
-        throw new Error("Missing array markers")
-      }
-    } catch (e) {
+    const questions = safeParseJSON(responseText)
+
+    if (!questions) {
       console.error('Quiz Parsing Error:', responseText)
-      return res.status(500).json({ message: 'AI model produced malformed JSON for the quiz.' })
+      return res.status(500).json({ message: 'AI failed to construct a valid quiz from this text format. Please try a different document.' })
     }
 
     res.json({ questions })
@@ -172,34 +241,63 @@ router.post('/summary', auth, async (req, res) => {
     const document = await Document.findOne({ _id: documentId, userId: req.user._id })
     if (!document) return res.status(404).json({ message: 'Document not found' })
 
-    const content = document.chunks.map(c => c.text).join('\n').slice(0, 5000)
+    const content = sanitizeContent(document.chunks.map(c => c.text).join('\n'))
     if (!content || content.trim().length < 50) {
       return res.status(400).json({ message: 'Document content is too short to generate a summary.' })
     }
     
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an educational assistant. Create a clear, spoken-style summary of the content.
-          The summary should:
-          - Be conversational and easy to understand when read aloud
-          - Cover the key points in 3-5 paragraphs
-          - Use simple language and short sentences
-          - Be suitable for audio learning`
-        },
-        {
-          role: 'user',
-          content: `Create an audio-friendly summary of this content:\n\n${content}`
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 1200
-    })
+    const apiKey = (process.env.GROQ_API_KEY || '').trim()
 
-    const summary = completion.choices[0].message.content
-    res.json({ summary })
+    if (!apiKey) {
+      const fallbackSummary = buildPodcastFallbackSummary(content)
+      return res.json({
+        summary: fallbackSummary,
+        source: 'fallback',
+        note: 'Audio summary generated in fallback mode because AI provider key is missing.'
+      })
+    }
+
+    try {
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an educational assistant. Create a clear, spoken-style summary of the content.
+            The summary should:
+            - Be conversational and easy to understand when read aloud
+            - Cover the key points in 3-5 paragraphs
+            - Use simple language and short sentences
+            - Be suitable for audio learning`
+          },
+          {
+            role: 'user',
+            content: `Create an audio-friendly summary of this content:\n\n${content}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1200
+      })
+
+      const summary = completion.choices[0].message.content
+      return res.json({ summary, source: 'groq' })
+    } catch (error) {
+      const fallbackSummary = buildPodcastFallbackSummary(content)
+
+      if (isGroqInvalidKeyError(error)) {
+        return res.json({
+          summary: fallbackSummary,
+          source: 'fallback',
+          note: 'Audio summary generated in fallback mode because the AI API key is invalid.'
+        })
+      }
+
+      return res.json({
+        summary: fallbackSummary,
+        source: 'fallback',
+        note: 'Audio summary generated in fallback mode because the AI provider is currently unavailable.'
+      })
+    }
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
@@ -217,13 +315,13 @@ router.post('/mindmap', auth, async (req, res) => {
     const document = await Document.findOne({ _id: documentId, userId: req.user._id })
     if (!document) return res.status(404).json({ message: 'Document not found' })
 
-    const content = document.chunks.map(c => c.text).join('\n').slice(0, 5000)
+    const content = sanitizeContent(document.chunks.map(c => c.text).join('\n'))
     if (!content || content.trim().length < 50) {
       return res.status(400).json({ message: 'Document content is too short for a mind map.' })
     }
     
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -249,18 +347,12 @@ router.post('/mindmap', auth, async (req, res) => {
       max_tokens: 1500
     })
 
-    let mindmap = { central: "Main Topic", branches: [] }
     const responseText = completion.choices[0].message.content
-    try {
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        mindmap = JSON.parse(jsonMatch[0])
-      } else {
-        throw new Error("No JSON object found")
-      }
-    } catch (e) {
+    const mindmap = safeParseJSON(responseText)
+
+    if (!mindmap) {
       console.error('Mindmap Parsing Error:', responseText)
-      return res.status(500).json({ message: 'Failed to generate a valid mind map. The content might be too complex or unstructured.' })
+      return res.status(500).json({ message: 'Failed to generate a valid mind map from this content. Please try a different section or a simpler file.' })
     }
 
     res.json({ mindmap })

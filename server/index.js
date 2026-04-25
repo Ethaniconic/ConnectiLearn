@@ -9,6 +9,7 @@ import adminRoutes from './routes/admin.js'
 import learnRoutes from './routes/learn.js'
 import recommendationRoutes from './routes/recommendation.js'
 import dashboardRoutes from './routes/dashboard.js'
+import analyticsRoutes from './routes/analytics.js'
 
 dotenv.config()
 
@@ -47,6 +48,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/learn', learnRoutes)
 app.use('/api/recommendation', recommendationRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/analytics', analyticsRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', message: 'Smart Learning AI is running' })
