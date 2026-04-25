@@ -48,6 +48,7 @@ function Learn() {
   const navigate = useNavigate()
   const location = useLocation()
   const recognitionRef = useRef(null)
+  const mindmapRef = useRef(null)
   
   // Podcast simulation states
   const [audioProgress, setAudioProgress] = useState(0)
@@ -238,7 +239,9 @@ function Learn() {
     setMindmap(null)
     try {
       const res = await api.post('/learn/mindmap', { documentId: selectedDoc, mode })
-      setMindmap(res.data.mindmap || null)
+      setMindmap(res.data.mindmap || { central: "Central Concept", branches: [] })
+      // Smooth scroll to results
+      setTimeout(() => mindmapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 500)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to generate mind map.')
       console.error(err)
@@ -480,23 +483,107 @@ function Learn() {
               </button>
             </div>
 
-            {mindmap && (
-              <div className="card mindmap-container" style={{ marginTop: '20px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}>
-                <h4 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary)' }}>🧠 {mindmap.central}</h4>
-                <div className="mindmap-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                  {mindmap.branches?.map((branch, i) => (
-                    <div key={i} className="mindmap-branch" style={{ background: 'var(--bg-primary)', padding: '15px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                      <h5 style={{ margin: '0 0 10px 0', borderBottom: '1px solid var(--primary)', paddingBottom: '5px' }}>{branch.name}</h5>
-                      <ul style={{ paddingLeft: '15px', margin: 0, fontSize: '0.85em', color: 'var(--text-muted)' }}>
-                        {branch.children?.map((child, j) => (
-                          <li key={j}>{child}</li>
-                        ))}
-                      </ul>
+            <div ref={mindmapRef}>
+              {mindmap && (
+                <div className="card mindmap-display" style={{ 
+                  marginTop: '25px', 
+                  background: 'var(--bg-secondary)', 
+                  border: '1px solid var(--primary)', 
+                  borderRadius: '24px',
+                  padding: '40px 20px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)'
+                }}>
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '0', 
+                    left: '0', 
+                    width: '100%', 
+                    height: '4px', 
+                    background: 'linear-gradient(90deg, var(--primary), var(--accent))' 
+                  }} />
+                  
+                  <div className="mindmap-center" style={{ 
+                    textAlign: 'center', 
+                    marginBottom: '40px',
+                    position: 'relative',
+                    zIndex: 2
+                  }}>
+                    <div style={{ 
+                      display: 'inline-block', 
+                      padding: '15px 30px', 
+                      background: 'var(--primary)', 
+                      borderRadius: '50px', 
+                      color: 'white',
+                      boxShadow: '0 10px 30px rgba(79, 134, 247, 0.4)',
+                      fontWeight: 800,
+                      fontSize: '1.2em',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px'
+                    }}>
+                      🧠 {mindmap.central || "Core Concept"}
                     </div>
-                  ))}
+                    <div style={{ 
+                      height: '40px', 
+                      width: '2px', 
+                      background: 'var(--border)', 
+                      margin: '0 auto' 
+                    }} />
+                  </div>
+
+                  <div className="mindmap-grid" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+                    gap: '24px',
+                    position: 'relative',
+                    zIndex: 2
+                  }}>
+                    {mindmap.branches?.filter(b => b.name).map((branch, i) => (
+                      <div key={i} className="mindmap-branch-node" style={{ 
+                        background: 'var(--bg-tertiary)', 
+                        padding: '24px', 
+                        borderRadius: '16px', 
+                        border: '1px solid var(--border)',
+                        transition: 'all 0.3s ease',
+                        position: 'relative'
+                      }}>
+                        <div style={{ 
+                          width: '12px', 
+                          height: '12px', 
+                          borderRadius: '50%', 
+                          background: 'var(--primary)', 
+                          position: 'absolute', 
+                          top: '30px', 
+                          left: '-24px',
+                          display: 'none' // Hidden by default, can be shown in desktop
+                        }} />
+                        <h4 style={{ 
+                          margin: '0 0 16px 0', 
+                          color: 'var(--primary-light)',
+                          fontSize: '1.1em',
+                          fontWeight: 700,
+                          borderBottom: '1px solid var(--border)',
+                          paddingBottom: '10px'
+                        }}>
+                          {branch.name}
+                        </h4>
+                        <ul style={{ 
+                          paddingLeft: '18px', 
+                          margin: 0, 
+                          color: 'var(--text-muted)',
+                          lineHeight: '1.6'
+                        }}>
+                          {branch.children?.map((child, j) => (
+                            <li key={j} style={{ marginBottom: '8px' }}>{child}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {flashcards.length > 0 && (
               <div className="flashcard-container" style={{ marginTop: '20px' }}>

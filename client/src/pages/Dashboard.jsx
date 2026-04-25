@@ -2,21 +2,38 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import Loader from '../components/Loader'
-import { LayoutDashboard, CheckCircle, Clock, FileText, TrendingUp, BarChart3, Sparkles, Eye, Headphones, Hand, BookOpenText, ArrowRight } from 'lucide-react'
+import { LayoutDashboard, CheckCircle, Clock, FileText, TrendingUp, BarChart3, Sparkles, Eye, Headphones, Hand, BookOpenText, ArrowRight, Timer, Shuffle } from 'lucide-react'
 
 function Dashboard() {
   const [stats, setStats] = useState(null)
   const [documents, setDocuments] = useState([])
   const [recommendations, setRecommendations] = useState([])
+  const [analyticsSummary, setAnalyticsSummary] = useState(null)
+  const [analyticsPages, setAnalyticsPages] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   const fetchDashboardData = async () => {
     try {
-      const res = await api.get('/dashboard/stats')
-      setStats(res.data.stats)
-      setDocuments(res.data.documents)
-      setRecommendations(res.data.recommendations || [])
+      const [dashboardResult, analyticsResult] = await Promise.allSettled([
+        api.get('/dashboard/stats'),
+        api.get('/analytics/summary')
+      ])
+
+      if (dashboardResult.status === 'fulfilled') {
+        setStats(dashboardResult.value.data.stats)
+        setDocuments(dashboardResult.value.data.documents)
+        setRecommendations(dashboardResult.value.data.recommendations || [])
+      } else {
+        console.error('Failed to fetch dashboard data', dashboardResult.reason)
+      }
+
+      if (analyticsResult.status === 'fulfilled') {
+        setAnalyticsSummary(analyticsResult.value.data.summary || null)
+        setAnalyticsPages(analyticsResult.value.data.pageBreakdown || [])
+      } else {
+        console.error('Failed to fetch analytics data', analyticsResult.reason)
+      }
     } catch (err) {
       console.error('Failed to fetch dashboard data', err)
     } finally {
@@ -49,6 +66,19 @@ function Dashboard() {
       case 'readwrite': return <BookOpenText size={24} />
       default: return <Sparkles size={24} />
     }
+  }
+
+  const formatPathLabel = (path) => {
+    if (!path) return 'N/A'
+    if (path === '/') return 'Home'
+
+    const route = path.split('?')[0]
+    return route
+      .replace(/^\//, '')
+      .split('/')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' / ')
   }
 
   if (loading) return <Loader overlay message="Gathering your progress..." />
@@ -101,6 +131,72 @@ function Dashboard() {
             <BarChart3 size={28} style={{ color: 'var(--primary-light)', opacity: 0.8 }} />
           </div>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '30px' }}>
+        <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Timer size={20} /> Behavioural Analysis
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '18px' }}>
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '14px' }}>
+            <p style={{ margin: 0, fontSize: '0.8em', color: 'var(--text-muted)' }}>Active Time</p>
+            <p style={{ margin: '6px 0 0', fontSize: '1.3em', fontWeight: 700 }}>
+              {analyticsSummary?.totalActiveMinutes || 0} min
+            </p>
+          </div>
+
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '14px' }}>
+            <p style={{ margin: 0, fontSize: '0.8em', color: 'var(--text-muted)' }}>Tab Switches</p>
+            <p style={{ margin: '6px 0 0', fontSize: '1.3em', fontWeight: 700 }}>
+              {analyticsSummary?.totalTabSwitches || 0}
+            </p>
+          </div>
+
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '14px' }}>
+            <p style={{ margin: 0, fontSize: '0.8em', color: 'var(--text-muted)' }}>Focus Score</p>
+            <p style={{ margin: '6px 0 0', fontSize: '1.3em', fontWeight: 700 }}>
+              {analyticsSummary?.focusScore ?? 100}%
+            </p>
+          </div>
+
+          <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '14px' }}>
+            <p style={{ margin: 0, fontSize: '0.8em', color: 'var(--text-muted)' }}>Switches / Hour</p>
+            <p style={{ margin: '6px 0 0', fontSize: '1.3em', fontWeight: 700 }}>
+              {analyticsSummary?.tabSwitchesPerHour ?? 0}
+            </p>
+          </div>
+        </div>
+
+        {analyticsPages.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {analyticsPages.map((page) => (
+              <div
+                key={page.pagePath}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr 1fr 1fr',
+                  gap: '10px',
+                  alignItems: 'center',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  background: 'var(--bg-tertiary)'
+                }}
+              >
+                <div style={{ fontWeight: 600 }}>{formatPathLabel(page.pagePath)}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>{page.totalActiveMinutes} min</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Shuffle size={14} /> {page.tabSwitchCount}
+                </div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>Visits: {page.visitCount}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ margin: 0, color: 'var(--text-muted)' }}>
+            Behavioural analytics will appear after some activity in your study pages.
+          </p>
+        )}
       </div>
 
       {/* Learning Modes Hub - One-Click Access to All 4 Modes */}

@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 import Layout from './components/Layout'
+import BehaviorTracker from './components/BehaviorTracker'
 import Auth from './pages/Auth'
 import Chat from './pages/Chat'
 import Uploads from './pages/Uploads'
@@ -18,6 +19,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <BehaviorTracker />
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/login" element={<Navigate to="/auth" replace />} />
