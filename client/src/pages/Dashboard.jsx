@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import Loader from '../components/Loader'
 import { LayoutDashboard, CheckCircle, Clock, FileText, TrendingUp, BarChart3, Sparkles, Eye, Headphones, Hand, BookOpenText, ArrowRight, Timer, Shuffle } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 function Dashboard() {
   const [stats, setStats] = useState(null)
@@ -12,6 +13,7 @@ function Dashboard() {
   const [analyticsPages, setAnalyticsPages] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const fetchDashboardData = async () => {
     try {
@@ -132,6 +134,15 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      {user?.varkScores && Object.keys(user.varkScores).length > 0 && (
+        <div style={{ marginBottom: '30px' }}>
+          <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <BarChart3 size={20} color="var(--primary)" /> Your Cognitive VARK Sensory Profile
+          </h3>
+          <VarkVisualizer scores={user.varkScores} />
+        </div>
+      )}
 
       <div className="card" style={{ marginBottom: '30px' }}>
         <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -362,6 +373,121 @@ function Dashboard() {
       </div>
     </div>
   )
+}
+
+function VarkVisualizer({ scores }) {
+  if (!scores || typeof scores !== 'object') return null;
+  
+  const v = scores.Visual || 0;
+  const a = scores.Auditory || 0;
+  const r = scores.ReadWrite || 0;
+  const k = scores.Kinesthetic || 0;
+  
+  const maxVal = Math.max(v, a, r, k, 1);
+  const scaleMax = Math.max(maxVal, 16);
+  
+  const center = 100;
+  const maxRadius = 70;
+  
+  const getRadius = (val) => (val / scaleMax) * maxRadius;
+  
+  const rV = getRadius(v);
+  const rA = getRadius(a);
+  const rR = getRadius(r);
+  const rK = getRadius(k);
+  
+  const ptV = { x: center, y: center - rV };
+  const ptA = { x: center + rA, y: center };
+  const ptR = { x: center, y: center + rR };
+  const ptK = { x: center - rK, y: center };
+  
+  const polygonPoints = `${ptV.x},${ptV.y} ${ptA.x},${ptA.y} ${ptR.x},${ptR.y} ${ptK.x},${ptK.y}`;
+  const gridRadii = [17.5, 35, 52.5, 70];
+  
+  return (
+    <div style={{ 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      gap: '30px', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      padding: '24px', 
+      background: 'var(--card-bg, #ffffff)', 
+      borderRadius: '16px', 
+      border: '1px solid var(--border-color, #e2e8f0)', 
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+    }}>
+      {/* Radar SVG */}
+      <div style={{ width: '220px', height: '220px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <svg width="220" height="220" viewBox="0 0 200 200" style={{ overflow: 'visible' }}>
+          {/* Background rings */}
+          {gridRadii.map((radius, idx) => {
+            const p = `${center},${center - radius} ${center + radius},${center} ${center},${center + radius} ${center - radius},${center}`;
+            return (
+              <polygon
+                key={idx}
+                points={p}
+                fill="none"
+                stroke="var(--border-color, #cbd5e1)"
+                strokeWidth="1"
+                strokeDasharray={idx === 3 ? "none" : "3,3"}
+              />
+            );
+          })}
+          
+          {/* Axes */}
+          <line x1={center - maxRadius} y1={center} x2={center + maxRadius} y2={center} stroke="var(--border-color, #e2e8f0)" strokeWidth="1.5" />
+          <line x1={center} y1={center - maxRadius} x2={center} y2={center + maxRadius} stroke="var(--border-color, #e2e8f0)" strokeWidth="1.5" />
+          
+          {/* Polygon */}
+          <polygon
+            points={polygonPoints}
+            fill="rgba(99, 102, 241, 0.2)"
+            stroke="var(--primary, #6366f1)"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            style={{ transition: 'all 0.5s ease-in-out' }}
+          />
+          
+          {/* Vertices */}
+          <circle cx={ptV.x} cy={ptV.y} r="4.5" fill="var(--primary, #6366f1)" stroke="#fff" strokeWidth="1.5" />
+          <circle cx={ptA.x} cy={ptA.y} r="4.5" fill="var(--primary, #6366f1)" stroke="#fff" strokeWidth="1.5" />
+          <circle cx={ptR.x} cy={ptR.y} r="4.5" fill="var(--primary, #6366f1)" stroke="#fff" strokeWidth="1.5" />
+          <circle cx={ptK.x} cy={ptK.y} r="4.5" fill="var(--primary, #6366f1)" stroke="#fff" strokeWidth="1.5" />
+          
+          {/* Labels */}
+          <text x={center} y={center - maxRadius - 12} textAnchor="middle" style={{ fontSize: '11px', fontWeight: '700', fill: 'var(--text-main, #334155)' }}>Visual (V)</text>
+          <text x={center + maxRadius + 14} y={center + 4} textAnchor="start" style={{ fontSize: '11px', fontWeight: '700', fill: 'var(--text-main, #334155)' }}>Auditory (A)</text>
+          <text x={center} y={center + maxRadius + 18} textAnchor="middle" style={{ fontSize: '11px', fontWeight: '700', fill: 'var(--text-main, #334155)' }}>Read/Write (R)</text>
+          <text x={center - maxRadius - 14} y={center + 4} textAnchor="end" style={{ fontSize: '11px', fontWeight: '700', fill: 'var(--text-main, #334155)' }}>Kinesthetic (K)</text>
+        </svg>
+      </div>
+      
+      {/* Horizontal Bar Chart */}
+      <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {[
+          { label: 'Visual (V)', score: v, color: '#3b82f6', desc: 'Charts, mindmaps, diagrams' },
+          { label: 'Auditory (A)', score: a, color: '#10b981', desc: 'Podcasts, dialogues, explanations' },
+          { label: 'Read/Write (R)', score: r, color: '#f59e0b', desc: 'Cornell notes, textbooks, outlines' },
+          { label: 'Kinesthetic (K)', score: k, color: '#ec4899', desc: 'Practice quizzes, scenarios, sandbox' }
+        ].map((item, idx) => {
+          const pct = Math.max(5, (item.score / scaleMax) * 100);
+          return (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '600' }}>
+                <span style={{ color: 'var(--text-main, #1e293b)' }}>{item.label}</span>
+                <span style={{ color: item.color }}>{item.score} points</span>
+              </div>
+              <div style={{ height: '8px', width: '100%', background: 'var(--border-color, #f1f5f9)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${pct}%`, background: item.color, borderRadius: '4px', transition: 'width 0.8s ease-in-out' }} />
+              </div>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted, #64748b)' }}>{item.desc}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default Dashboard

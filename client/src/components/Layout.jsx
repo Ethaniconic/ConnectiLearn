@@ -117,6 +117,20 @@ function Layout() {
     return d.toLocaleDateString()
   }
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const toggleSidebar = () => {
+    if (window.innerWidth <= 768) {
+      setMobileMenuOpen(!mobileMenuOpen)
+    } else {
+      setIsCollapsed(!isCollapsed)
+    }
+  }
+
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
   const pinnedChats = chats.filter(c => c.isPinned)
   const recentChats = chats.filter(c => !c.isPinned)
   const isOnChat = location.pathname === '/chat'
@@ -124,10 +138,24 @@ function Layout() {
   return (
     <div className="layout">
       {routeLoading && <Loader overlay message="Loading view..." />}
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+
+      {/* Top Mobile Header Bar for <= 768px viewports */}
+      <div className="mobile-header-bar">
+        <button className="hamburger-btn" onClick={() => setMobileMenuOpen(true)}>
+          <Menu size={22} />
+        </button>
+        <div className="sidebar-logo">ConnectiLearn</div>
+        <ThemeToggle />
+      </div>
+
+      {mobileMenuOpen && (
+        <div className="mobile-backdrop" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start', gap: '10px' }}>
           <button 
-            onClick={() => setIsCollapsed(!isCollapsed)} 
+            onClick={toggleSidebar} 
             className={`hamburger-btn ${isCollapsed ? 'is-active' : ''}`}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -174,16 +202,16 @@ function Layout() {
             gridTemplateColumns: isCollapsed ? '1fr' : 'repeat(4, 1fr)', 
             gap: isCollapsed ? '12px' : '8px' 
           }}>
-            <button onClick={() => navigate('/learn', { state: { forcedMode: 'visual' } })} className="mode-dot visual" title="Visual Mode">
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'visual', ts: Date.now() }, replace: false })} className="mode-dot visual" title="Visual Mode">
               <Eye size={isCollapsed ? 20 : 16} />
             </button>
-            <button onClick={() => navigate('/learn', { state: { forcedMode: 'auditory' } })} className="mode-dot auditory" title="Auditory Mode">
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'auditory', ts: Date.now() }, replace: false })} className="mode-dot auditory" title="Auditory Mode">
               <Headphones size={isCollapsed ? 20 : 16} />
             </button>
-            <button onClick={() => navigate('/learn', { state: { forcedMode: 'readwrite' } })} className="mode-dot readwrite" title="Read/Write Mode">
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'readwrite', ts: Date.now() }, replace: false })} className="mode-dot readwrite" title="Read/Write Mode">
               <BookOpenText size={isCollapsed ? 20 : 16} />
             </button>
-            <button onClick={() => navigate('/learn', { state: { forcedMode: 'kinesthetic' } })} className="mode-dot kinesthetic" title="Kinesthetic Mode">
+            <button onClick={() => navigate('/learn', { state: { forcedMode: 'kinesthetic', ts: Date.now() }, replace: false })} className="mode-dot kinesthetic" title="Kinesthetic Mode">
               <Hand size={isCollapsed ? 20 : 16} />
             </button>
           </div>

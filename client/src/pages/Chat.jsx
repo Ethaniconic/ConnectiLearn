@@ -44,7 +44,8 @@ function Chat() {
       setMessages(prev => [...prev, { role: 'assistant', content: res.data.answer }])
       window.dispatchEvent(new CustomEvent('chatCreated'))
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Error: Could not get response' }])
+      const errMsg = err.response?.data?.detail || err.response?.data?.message || 'Error: Could not connect to chat assistant.'
+      setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${errMsg}` }])
     }
     setLoading(false)
   }
@@ -106,8 +107,12 @@ function Chat() {
             </div>
           ))}
           {loading && (
-            <div className="message thinking">
-              <Loader message="Thinking..." size={80} />
+            <div className="message assistant thinking">
+              <div className="jumping-dots">
+                <span />
+                <span />
+                <span />
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} />
