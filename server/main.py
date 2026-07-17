@@ -36,6 +36,11 @@ async def startup_db_client():
     await init_db()
     print("FastAPI Database client initialized and indexes created.")
 
+@app.get("/")
+@app.head("/")
+async def root_index():
+    return {"status": "healthy", "service": "ConnectiLearn FastAPI Backend"}
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "message": "Smart Learning AI is running"}
