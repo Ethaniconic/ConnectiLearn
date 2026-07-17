@@ -10,6 +10,8 @@ from ..config import settings
 from ..db import documents_collection, users_collection
 from ..routes.auth import get_current_user
 import os
+import shutil
+import base64
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 groq_client = Groq(api_key=settings.groq_api_key)
@@ -67,10 +69,34 @@ async def extract_text(filepath: str, ext: str) -> str:
         text_content = []
         try:
             reader = PdfReader(filepath)
-            for page in reader.pages:
-                t = page.extract_text()
-                if t:
-                    text_content.append(t)
+            for page_idx, page in enumerate(reader.pages):
+                page_text = page.extract_text() or ""
+                image_texts = []
+                
+                # Extract and describe any images on the current page
+                if getattr(page, "images", None):
+                    for img_idx, img_obj in enumerate(page.images):
+                        try:
+                            temp_name = f"temp_pdf_{int(datetime.utcnow().timestamp())}_{page_idx}_{img_idx}.png"
+                            temp_path = os.path.join(UPLOAD_DIR, temp_name)
+                            with open(temp_path, "wb") as img_file:
+                                img_file.write(img_obj.data)
+                            
+                            desc = describe_image_via_groq(temp_path)
+                            if desc:
+                                image_texts.append(f"\n[Page {page_idx+1} Image {img_idx+1} Description: {desc}]\n")
+                                
+                            if os.path.exists(temp_path):
+                                os.remove(temp_path)
+                        except Exception as img_err:
+                            print(f"Failed to extract image {img_idx} on page {page_idx}: {img_err}")
+                
+                combined = page_text
+                if image_texts:
+                    combined += "\n" + "\n".join(image_texts)
+                if combined.strip():
+                    text_content.append(combined)
+                    
             return "\n".join(text_content)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to parse PDF: {str(e)}")

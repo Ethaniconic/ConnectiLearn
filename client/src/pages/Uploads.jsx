@@ -33,7 +33,7 @@ function Uploads() {
       })
       fetchDocuments()
     } catch (err) {
-      alert(err.response?.data?.message || 'Upload failed')
+      alert(err.response?.data?.detail || err.response?.data?.message || 'Upload failed')
     }
     setUploading(false)
     fileInputRef.current.value = ''
