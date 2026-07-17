@@ -137,8 +137,8 @@ function Dashboard() {
 
       {user?.varkScores && Object.keys(user.varkScores).length > 0 && (
         <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <BarChart3 size={20} color="var(--primary)" /> Your Cognitive VARK Sensory Profile
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--text-main, #1e293b)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            📊 Your Multimodal VARK Sensory Breakdown
           </h3>
           <VarkVisualizer scores={user.varkScores} />
         </div>

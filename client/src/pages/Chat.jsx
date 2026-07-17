@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 import api from '../utils/api'
 import Loader from '../components/Loader'
 import { Volume2, Square, SendHorizonal } from 'lucide-react'
@@ -92,7 +95,7 @@ function Chat() {
             <div key={i} className={`message ${msg.role}`}>
               {msg.role === 'assistant' ? (
                 <>
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>{msg.content}</ReactMarkdown>
                   <button
                     className="speak-btn"
                     onClick={() => speakMessage(msg.content, i)}
