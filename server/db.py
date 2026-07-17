@@ -2,7 +2,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 
 client = AsyncIOMotorClient(settings.mongodb_uri, tlsAllowInvalidCertificates=True)
-db = client.get_default_database()
+try:
+    db = client.get_default_database()
+    if db is None:
+        db = client.get_database("connectilearn")
+except Exception:
+    db = client.get_database("connectilearn")
 
 # Database collections matching Mongoose names
 users_collection = db["users"]

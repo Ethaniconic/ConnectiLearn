@@ -33,8 +33,11 @@ app.include_router(analytics.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup_db_client():
-    await init_db()
-    print("FastAPI Database client initialized and indexes created.")
+    try:
+        await init_db()
+        print("FastAPI Database client initialized and indexes created.")
+    except Exception as e:
+        print(f"WARNING: MongoDB database connection failed during startup: {e}")
 
 @app.get("/")
 @app.head("/")
