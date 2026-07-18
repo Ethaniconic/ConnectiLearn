@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Body
+from jose import jwt, JWTError
 from bson import ObjectId
-from ..db import behavior_collection
+from ..db import behavior_collection, users_collection
+from ..config import settings
 from ..routes.auth import get_current_user
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -13,9 +15,32 @@ MAX_TAB_SWITCHES = 200
 @router.post("/track")
 async def track_behavior(
     user_agent: str = Header(None, alias="User-Agent"),
+    authorization: str = Header(None),
     payload: dict = Body(...),
-    current_user: dict = Depends(get_current_user)
 ):
+    # Determine token: Authorization header first (normal requests),
+    # then _token from body (sendBeacon unload requests which cannot set headers)
+    token = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.replace("Bearer ", "")
+    elif payload.get("_token"):
+        token = payload.pop("_token")
+
+    if not token:
+        raise HTTPException(status_code=401, detail="No token provided")
+
+    try:
+        decoded = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+        user_id = decoded.get("id")
+        if not user_id or not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=401, detail="Invalid token")
+        current_user = await users_collection.find_one({"_id": ObjectId(user_id)})
+        if not current_user:
+            raise HTTPException(status_code=401, detail="User not found")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
     session_id = payload.get("sessionId")
     page_path = payload.get("pagePath")
     duration_ms = payload.get("durationMs", 0)

@@ -32,27 +32,47 @@ function BehaviorTracker() {
     const token = localStorage.getItem('token')
     if (!token) return
 
-    if (keepalive && typeof fetch === 'function') {
-      try {
-        await fetch(getTrackingUrl(), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload),
-          keepalive: true
-        })
-      } catch (err) {
-        console.error('Behavior tracker keepalive request failed:', err)
+    if (keepalive) {
+      // navigator.sendBeacon is the browser-native solution for unload tracking:
+      // it doesn't trigger CORS preflight, works even when the page is unloading,
+      // and has no payload size issues like fetch keepalive.
+      if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+        try {
+          const blob = new Blob(
+            [JSON.stringify({ ...payload, _token: token })],
+            { type: 'application/json' }
+          )
+          navigator.sendBeacon(getTrackingUrl(), blob)
+        } catch (err) {
+          // sendBeacon failed (very rare) — swallow silently, non-critical
+        }
+        return
       }
-      return
+
+      // Fallback: fetch with keepalive (works in most cases except large payloads)
+      if (typeof fetch === 'function') {
+        try {
+          await fetch(getTrackingUrl(), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(payload),
+            keepalive: true
+          })
+        } catch (err) {
+          // Expected on page unload — not an actionable error
+          console.warn('Behavior tracker keepalive request failed (non-critical):', err.message)
+        }
+        return
+      }
     }
 
     try {
       await api.post('/analytics/track', payload)
     } catch (err) {
-      console.error('Behavior tracker request failed:', err)
+      console.warn('Behavior tracker request failed:', err)
     }
   }
 

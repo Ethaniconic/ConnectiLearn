@@ -92,6 +92,15 @@ function Learn() {
       setMode(forced)
     }
   }, [location.state?.forcedMode, location.state?.ts])
+
+  // Sync mode state with the URL search parameters (?mode=visual, etc.)
+  // so that the BehaviorTracker tracks the specific study mode being used.
+  useEffect(() => {
+    if (mode && searchParams.get('mode') !== mode) {
+      setSearchParams({ mode }, { replace: true })
+    }
+  }, [mode, searchParams, setSearchParams])
+
   const recognitionRef = useRef(null)
   const mindmapRef = useRef(null)
   const audioRef = useRef(null)
@@ -224,14 +233,25 @@ function Learn() {
     }
   }, [user, mode])
 
+  const FALLBACK_HYPE = [
+    "Your brain is already warming up — let's lock in and make today's session count!",
+    "Every question you answer moves your learning style to the top. Keep pushing!",
+    "Adaptive learning activated. Your personalized study engine is ready to go.",
+    "Consistency is your superpower. One session at a time adds up to mastery.",
+    "Your learning profile is set — now it's time to put those points on the board!"
+  ]
+
   const fetchHype = async () => {
     try {
       const res = await api.get('/learn/hype')
       setHypeMessage(res.data?.message || '')
     } catch (err) {
-      console.error('Failed to fetch Groq Hype Message', err)
+      // Non-critical decorative feature — use a local fallback so UI is never empty
+      console.warn('Groq hype message unavailable, using local fallback.')
+      setHypeMessage(FALLBACK_HYPE[Math.floor(Math.random() * FALLBACK_HYPE.length)])
     }
   }
+
 
   const fetchDocuments = async () => {
     try {

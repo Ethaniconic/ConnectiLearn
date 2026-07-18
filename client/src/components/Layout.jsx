@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
 import api from '../utils/api'
@@ -14,6 +14,7 @@ function Layout() {
   const [routeLoading, setRouteLoading] = useState(false)
   const [activeChat, setActiveChat] = useState(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const mainContentRef = useRef(null)
 
   const fetchChats = useCallback(async () => {
     if (!user) return
@@ -53,6 +54,15 @@ function Layout() {
   useEffect(() => {
     setRouteLoading(true)
     const t = setTimeout(() => setRouteLoading(false), 350)
+    return () => clearTimeout(t)
+  }, [location.pathname])
+
+  // Auto-focus the scroll container on route changes so the mouse wheel
+  // scrolls immediately without the user needing to click first.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      mainContentRef.current?.focus({ preventScroll: true })
+    }, 360) // Just after the route-loading overlay clears (350ms)
     return () => clearTimeout(t)
   }, [location.pathname])
 
@@ -293,7 +303,12 @@ function Layout() {
           </button>
         </div>
       </aside>
-      <main className="main-content">
+      <main
+        className="main-content"
+        ref={mainContentRef}
+        tabIndex={-1}
+        style={{ outline: 'none' }}
+      >
         <Outlet />
       </main>
     </div>

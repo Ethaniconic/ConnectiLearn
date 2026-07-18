@@ -21,10 +21,17 @@ async def get_admin_stats(current_admin: dict = Depends(get_current_admin)):
     ]
     style_counts_cursor = users_collection.aggregate(pipeline)
     style_counts = {"Visual": 0, "Auditory": 0, "ReadWrite": 0, "Kinesthetic": 0}
+    short_map = {"V": "Visual", "A": "Auditory", "R": "ReadWrite", "K": "Kinesthetic"}
     async for item in style_counts_cursor:
         style = item["_id"]
-        if style in style_counts:
-            style_counts[style] = item["count"]
+        if not style:
+            continue
+        count = item["count"]
+        # Convert short code string (e.g., "VK") to individual long category tallies
+        for char in style:
+            full_name = short_map.get(char.upper())
+            if full_name in style_counts:
+                style_counts[full_name] += count
             
     # 2. Aggregated global academic research metrics
     cursor = behavior_collection.find({}, {"userId": 1, "pagePath": 1, "totalTimeMs": 1, "tabSwitchCount": 1})
@@ -75,9 +82,9 @@ async def get_admin_stats(current_admin: dict = Depends(get_current_admin)):
     quiz_time_total_ms = 0
 
     for uid, modes in user_data.items():
-        style = users_styles.get(uid)
-        style_map = {"Visual": "visual", "Auditory": "auditory", "ReadWrite": "readwrite", "Kinesthetic": "kinesthetic"}
-        target_mode = style_map.get(style) if style else None
+        style = users_styles.get(uid) # e.g. "VK" or "V"
+        # Map modes back to their character code representation
+        mode_to_char = {"visual": "V", "auditory": "A", "readwrite": "R", "kinesthetic": "K"}
         
         for mod, mdata in modes.items():
             t_ms = mdata["timeMs"]
@@ -93,14 +100,16 @@ async def get_admin_stats(current_admin: dict = Depends(get_current_admin)):
                 f_score = max(0.0, min(100.0, 100.0 - penalty))
                 global_modality_focus[mod] += f_score
                 
-                # Check alignment
-                if target_mode:
-                    if mod == target_mode:
+                # Check alignment: aligned if study mode character matches any of user's style characters
+                if style:
+                    char_code = mode_to_char.get(mod)
+                    if char_code and char_code in style.upper():
                         aligned_focus_sum += f_score
                         aligned_focus_count += 1
                     else:
                         misaligned_focus_sum += f_score
                         misaligned_focus_count += 1
+
 
                 # Special case: kinesthetic quiz tracking for distraction
                 if mod == "kinesthetic":
